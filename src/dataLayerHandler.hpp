@@ -1,5 +1,18 @@
 #pragma once
 
+// Author: Raul Cruz-Oliver
+// Email: raul.cruz.oliver@gmail.com
+// Date and place: November 2023, Buttikon CH
+
+/*
+
+This file creates all the neccesary artifacts for handling
+a communication with the ctrlX OS datalayer.
+
+It is a good example of a provider and a client. 
+
+*/
+
 #include "../inc/commDatalayer/comm/datalayer/datalayer.h"
 #include "../inc/commDatalayer/comm/datalayer/datalayer_system.h"
 #include "../inc/commDatalayer/comm/datalayer/metadata_generated.h"

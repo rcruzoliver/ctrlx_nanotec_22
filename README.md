@@ -77,7 +77,7 @@ Once you have the built code, you can pack it. The packing process is defined in
 
 The whole snapcraft process has been simplified for you with a simply call to the batch file "createSnap.sh"
 ```bash
-./createSnap.sh   # if only works if the build for arm64 has been run before
+./createSnap.sh   # only works if the build for arm64 has been run before
 ```
 The snapcraft.yalm is cofigured to pack an app for arm64. If you want to pack the app for amd64 you will need to manually change a couple or things in the snapcraft.yalm. They are indicated with an arrow and a "CHANGE IF NEEDED" comment.
 
@@ -107,7 +107,35 @@ After running the process to create the snap you will get a file called "ctrlx-n
 
 This .snap file can be directly intalled in CtrlX Core from the Apps menu. Just as a reminder, since this new app you just built has not been signed, you need to allow the intallation from "unknown sources" in your device.
 
-PHOTO HOW TO ENABLE THIS
+
+## Understanding the project
+
+### Files
+
+There are three main source files in this project:
+- dataLayerHandler: it creates all the neccesary artifacts for handling a communication with the ctrlX OS datalayer. It is a good example of a provider and a client. 
+- nanotecHandler: it creates all the neccesary artifacts for handling a communication with the CANopen device using the library provided from nanotec.
+- main: it creates instances of dataLayerHandler (if the ipc communication between snap and ctrlX OS is successful) and nanotecHandler (if the hardware is available). Then it starts an infinity loop with a state machine to switch the motor operation mode from stop to velocity mode using an API in dataLayer.
+
+Apart from the source files you can find the libraries from both nanotec and ctrlX in /lib. As later explained in the section "What is snapcraft?", this libraries are organized first in subdirectories nanotec and dataLayercomm, and then inside in the two available architectures for which the libraries have been compiled. This way of organizing the libraries is extremely important.
+
+Finally, inside inc/ you can find the header files that must be included in your source code to use the functions defined in the libraries.
+
+NOTE: Under library you must understand an already compiled code that defines some functions, and a header file (in inc/) as the declaration of such functions.
+
+### API in datalayer
+
+If the hardware is available the app should be successfully intialized and a new node called "ctrlx_nanotec" should appear in the data layer. 
+
+Inside this node one can find the following:
+
+- mode_id: it controls the operation mode of the motor. "0" means stop mode, "1" mean velocity mode. It is initializided with "0".
+- velocity_mode/command_vel: it is the target value for velocity when in velocity mode. It can be live updated when in velocity mode.
+
+### Other folders
+When you run the build process, you will get build/ and install/ directories.
+When you run the snapcraft process, you will get parts/, stage/ and prime/ directories.
+When distributing the project this files do not need to be shared.
 
 ## What is snapcraft?
 Snapcraft is a technology from Canonical that packs an app in a single file that contains all the dependencies needed for the app to run. Since CtrlX OS is based on ubuntu core, snapcraft has been chosen by Bosch Rexroth as the way to deploy apps. In particular ctrlx OS 2.xx is based on core22 (same as Ubuntu Desktop 22.04). For more information about snapacraft, please refer to the offical website of snapcraft https://snapcraft.io/.

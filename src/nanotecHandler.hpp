@@ -1,5 +1,17 @@
 #pragma once
 
+// Author: Raul Cruz-Oliver
+// Email: raul.cruz.oliver@gmail.com
+// Date and place: November 2023, Buttikon CH
+
+/*
+
+This file creates all the neccesary artifacts for handling
+a communication with the CANopen device using the library 
+provided from nanotec
+
+*/
+
 #include "nanolib_helper.hpp"
 #include <optional>
 
