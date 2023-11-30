@@ -1,0 +1,77 @@
+# Getting started
+# See https://snapcraft.io/docs/getting-started
+# Snapcraft references
+# See https://snapcraft.io/docs/snapcraft-yaml-reference
+
+# metadata
+name: ctrlx-nanotec
+version: "2.2.0"
+grade: stable
+summary: Datalayer interface for Nanotec CANopen-USB adapter
+description: This app creates an API in the ctrlX OS datalayer to control the operation of a stepper motor via a serial interface. Author -- Raul Cruz-Oliver. Email -- raul.cruz.oliver@gmail.com
+base: core22
+confinement: strict
+architectures:
+   - build-on: [amd64]
+     build-for: [arm64]  ### <------ CHANGE IF NEEDED
+
+# linters (dis/enable linter verbose, comment out if want to enable)
+lint:
+  ignore:
+    - classic 
+    - library
+
+# Layouts (system directories mapping in snap directories)
+layout:
+  /var/tmp:
+    bind: $SNAP_DATA/var/tmp
+
+# plugs (interface: slot->plug)
+plugs:
+  file-handler:
+    interface: system-files
+    write: 
+     - /var/tmp
+  datalayer:
+    interface: content
+    content: datalayer
+    target: $SNAP_DATA/.datalayer
+
+# parts (compiled code that will be included in the snap)
+parts:
+  compiled:
+    plugin: dump
+    source: ./install
+    # stage-packages:
+    #  - libzmq5
+    #  - ctrlx-datalayer
+
+  nanotec-lib:
+    plugin: dump
+    source: ./lib/nanotec
+    organize:
+      '*': lib/
+
+  commDatalayer-lib:
+    plugin: dump
+    source: ./lib/commDatalayer
+    organize:
+      '*': lib/
+  
+# apps (outer calls of functionalities included in the snap)
+apps:
+  ctrlx-nanotec:
+    command: ./ctrlx_nanotec_arm64 ### <------ CHANGE IF NEEDED
+    plugs:
+      - file-handler
+      - network
+      - serial-port
+      - raw-usb
+      - hardware-observe
+    daemon: simple
+    passthrough:
+      restart-condition: always
+      restart-delay: 10s
+      
+
+
