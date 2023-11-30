@@ -65,6 +65,7 @@ sudo apt-upgrade
 Then close the current terminal and open a new one. There call the library installer script:
 
 ```bash
+cd ctrlx_nanotec_22
 ./install-cpp-aarch64-libs
 ```
 
@@ -89,14 +90,14 @@ Just as a hint for beginners, CtrlX Core X3 and Raspberry Pi are examples of dev
 To launch the build and install process simply call the file from a console in the root directoy of this project:
 
 ```bash
-./buildCode_arm64.sh     # to build and install for arm64
-./buldCode_amd64.sh      # to build and install for amd64
+./buildCode_arm64.sh     # to build and install for arm64 (you must be in ctrlx_nanotec_22)
+./buldCode_amd64.sh      # to build and install for amd64 (you must be in ctrlx_nanotec_22)
 ```
 You will get the install executable in a new created install folder. If you built for same architecture that your machine as, you could start the executable with the following commands:
 
 ```bash
-./install/ctrlx_nanotec_arm64    # if you built for arm64
-./install/ctrlx_nanotec_amd64    # if you built for amd64
+./install/ctrlx_nanotec_arm64    # if you built for arm64 (you must be in ctrlx_nanotec_22)
+./install/ctrlx_nanotec_amd64    # if you built for amd64 (you must be in ctrlx_nanotec_22)
 ```
 however, this specific example is designed to work inside a ctrlX OS device and it will simply stop. Some libraries may be still missing in your system directories and the executable will not start, if you want to start the executable simply follow what the console log is telling you. However, do not worry about the executable not starting in your host system, we have made sure that the snap contains all the neccesary dependencies. 
  
@@ -105,7 +106,7 @@ Once you have the built code, you can pack it. The packing process is defined in
 
 The whole snapcraft process has been simplified for you with a simply call to the batch file "createSnap.sh"
 ```bash
-./createSnap.sh   # only works if the build for arm64 has been run before
+./createSnap.sh   # only works if the build for arm64 has been run before (you must be in ctrlx_nanotec_22)
 ```
 The snapcraft.yaml is cofigured to pack an app for arm64. If you want to pack the app for amd64 you will need to manually change a couple or things in the snapcraft.yaml. They are indicated with an arrow and a "CHANGE IF NEEDED" comment.
 
