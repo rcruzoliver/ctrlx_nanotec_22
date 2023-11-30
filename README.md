@@ -16,7 +16,7 @@ License: MIT
 This is a C++ project, therefore the code first need to be compiled (i.e. generate the binaries) and then packed in the so-called snap file, which will then installed in ctrlX OS. 
 
 ### 0. Clone this repository in your local system
-This example is designed for Ubuntu 22.04 x86_64 Desktop. The "cmake" process that would be used has been designed for a Linux machine, and moreover Snapcraft is a technology from Canonical (the developers of Ubuntu). If you want to develop apps for the ctrlX ecosystem, you must mandatory work in a Ubuntu 22.04 OS, no matter if it is a virtual machine or a native installation. 
+This example is designed for Ubuntu Jammy Jellyfish 22.04 x86_64 Desktop. The "cmake" process that would be used has been designed for a Linux machine, and moreover Snapcraft is a technology from Canonical (the developers of Ubuntu). If you want to develop apps for the ctrlX ecosystem, you must mandatory work in a Ubuntu 22.04 OS, no matter if it is a virtual machine or a native installation. 
 
 Open a terminal, it will be started in your home directory. This is the best place to clone this repository. Simply enter:
 
