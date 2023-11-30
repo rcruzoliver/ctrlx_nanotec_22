@@ -21,27 +21,33 @@ This example is designed for Ubuntu 22.04 x86_64 Desktop. The "cmake" process th
 Open a terminal, it will be started in your home directory. This is the best place to clone this repository. Simply enter:
 
 ```bash
-git clone https://github.com/rcruzoliver/ctrlx_nanotec
+git clone https://github.com/rcruzoliver/ctrlx_nanotec_22
 ```
 When during this document we refer to the root directory we mean the ~/ctrlx_nanotec directory. To go in it from the home directory, simply enter: 
 ```bash
-cd ctrlx_nanotec
+cd ctrlx_nanotec_22
 ```
 
 ### 1. Install the neccesary tools in your system
 Verify you have installed the general libraries required for this project, for both arm64 and amd64. You can run the following commands:
 
 ```bash
-# for amd64 (your host system)
 sudo apt-get update 
+sudo apt-get upgrade
+
+# for amd64 (your host system)
 sudo apt-get install libssl-dev
 
 # for arm64
 sudo dpkg --add-architecture arm64
-sudo apt-get update
 sudo apt-get install libc6-dev-arm64-cross libssl-dev:arm64
 ```
 In particual the project is using pthread, ssl and crypto. They must be installed in /usr/lib/<aarch64-linux-gnu|x86_64-linux-gnu>. Hint, look for a file called "lib<lib_name>.so"
+
+Install snapcraft. You can do so with:
+```bash
+sudo apt-get install snapcraft
+```
 
 ### 2. Build the source code
 In this project the source coude is compiled and installed with cmake. For detailed information about it please refer to the official website https://cmake.org/cmake/help/latest/ 

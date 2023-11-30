@@ -6,8 +6,6 @@
 #include "ctrlx_datalayer_helper.h"
 #include <thread>
 
-int main_datalayer();
-
 
 class dataLayerHandler {
 public:
