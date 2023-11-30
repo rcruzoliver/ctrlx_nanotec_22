@@ -42,9 +42,6 @@ parts:
   compiled:
     plugin: dump
     source: ./install
-    # stage-packages:
-    #  - libzmq5
-    #  - ctrlx-datalayer
 
   nanotec-lib:
     plugin: dump

@@ -9,7 +9,7 @@ Author: Raul Cruz-Oliver \
 Main contact email: raul.cruz.oliver@gmail.com \
 Alternative contact email: stefan.luna@boschrexroth.ch \
 Date: November 2023 \
-Place: Buttikon Schwyz, Swtizerland \
+Place: Buttikon Schwyz, Switzerland \
 License: MIT
 
 ## Easy Start-up. 
@@ -21,6 +21,8 @@ This example is designed for Ubuntu 22.04 x86_64 Desktop. The "cmake" process th
 Open a terminal, it will be started in your home directory. This is the best place to clone this repository. Simply enter:
 
 ```bash
+sudp apt install git # if you do not have git install in your system
+
 git clone https://github.com/rcruzoliver/ctrlx_nanotec_22
 ```
 When during this document we refer to the root directory we mean the ~/ctrlx_nanotec directory. To go in it from the home directory, simply enter: 
@@ -29,32 +31,58 @@ cd ctrlx_nanotec_22
 ```
 
 ### 1. Install the neccesary tools in your system
-Verify you have installed the general libraries required for this project, for both arm64 and amd64. You can run the following commands:
+Verify you have installed the general libraries required for this project, for both arm64 and amd64. 
+
+First add the arm64 architecture to your foreing architecture list.
+
+```bash
+sudo dpkg --add-architecture arm64
+dpkg --print-foreign-architectures # you should see arm64 listed there
+```
+
+Then you need to add the repositories for arm64 architecture to your sources.list file. To do so:
+
+```bash
+# First open the file with sudo privileges
+sudo gedit /etc/apt/sources.list
+```
+The file editor will open, scroll to the bottom and add the following lines there:
+
+```list
+deb [arch=arm64] http://ch.archive.ubuntu.com/ubuntu/ jammy main restricted
+deb [arch=arm64] http://ch.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+deb [arch=amd64] http://ch.archive.ubuntu.com/ubuntu/ jammy universe
+deb [arch=amd64] http://ch.archive.ubuntu.com/ubuntu/ jammy-updates universe
+deb [arch=arm64] http://ports.ubuntu.com/ jammy main restricted universe 
+deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates main restricted universe 
+```
+Save the file. Now run the following commands.
 
 ```bash
 sudo apt-get update 
-sudo apt-get upgrade
-
-# for amd64 (your host system)
-sudo apt-get install libssl-dev
-
-# for arm64
-sudo dpkg --add-architecture arm64
-sudo apt-get install libc6-dev-arm64-cross libssl-dev:arm64
+sudo apt-upgrade
 ```
-In particual the project is using pthread, ssl and crypto. They must be installed in /usr/lib/<aarch64-linux-gnu|x86_64-linux-gnu>. Hint, look for a file called "lib<lib_name>.so"
+Then close the current terminal and open a new one. There call the library installer script:
 
-Install snapcraft. You can do so with:
 ```bash
-sudo apt-get install snapcraft
+./install-cpp-aarch64-libs
+```
+
+Your libraries for arm64 should be available after this step. In particual the project is using pthread, ssl and crypto. They must be installed in /usr/lib/<aarch64-linux-gnu|x86_64-linux-gnu>. Hint, look for a file called "lib<lib_name>.so"
+
+The last step, is to install the correct version of snapcraft for this project.
+
+```bash
+sudo snap remove --purge snapcraft # install the potential old version of snapcraft that you could have
+sudo snap install snapcraft --classic --channel=7.x/stable # install the version 7.0
 ```
 
 ### 2. Build the source code
-In this project the source coude is compiled and installed with cmake. For detailed information about it please refer to the official website https://cmake.org/cmake/help/latest/ 
+In this project the source code is compiled and installed with cmake. For detailed information about it please refer to the official website https://cmake.org/cmake/help/latest/ 
 
 In short, cmake define where the source files are, and which depencies are needed for compiling the code that will result in a executable. You can have a look at the CMakeLists.txt file in this documment to have an idea of how this type of files look like. If you want to learn to write your own CMakeLists.txt file the best option is to follow the official tutorial https://cmake.org/cmake/help/latest/guide/tutorial/index.html
 
-In order to get you easily started, batch files with the neccesary commands to build the code have been set: "builildCode_arm64.sh" and "buildCode_amd64.sh". They respectively build and install the code for processing architectures aarch64-linux-gnu and x86_64-linux-gnu.
+In order to get you easily started, batch files with the neccesary commands to build the code have been set: "buildCode_arm64.sh" and "buildCode_amd64.sh". They respectively build and install the code for processing architectures aarch64-linux-gnu and x86_64-linux-gnu.
 
 Just as a hint for beginners, CtrlX Core X3 and Raspberry Pi are examples of devices with aarch64 (also known as arm64), whereas CtrlX Core Virtual, CtrlX Core X7 and probably the laptop where you are reading this document are devices with x86_64 (also known as amd64).
 
@@ -70,23 +98,23 @@ You will get the install executable in a new created install folder. If you buil
 ./install/ctrlx_nanotec_arm64    # if you built for arm64
 ./install/ctrlx_nanotec_amd64    # if you built for amd64
 ```
-however, this specific example is designed to work inside a ctrlX OS device and it will simply stop. 
+however, this specific example is designed to work inside a ctrlX OS device and it will simply stop. Some libraries may be still missing in your system directories and the executable will not start, if you want to start the executable simply follow what the console log is telling you. However, do not worry about the executable not starting in your host system, we have made sure that the snap contains all the neccesary dependencies. 
  
 ### 3. Pack in a snap
-Once you have the built code, you can pack it. The packing process is defined in a file called snapcraft.yalm, placed inside the folder /snap. If you want to know more about snapcraft process, please read the next section in this document.
+Once you have the built code, you can pack it. The packing process is defined in a file called snapcraft.yaml, placed inside the folder /snap. If you want to know more about snapcraft process, please read the next section in this document.
 
 The whole snapcraft process has been simplified for you with a simply call to the batch file "createSnap.sh"
 ```bash
 ./createSnap.sh   # only works if the build for arm64 has been run before
 ```
-The snapcraft.yalm is cofigured to pack an app for arm64. If you want to pack the app for amd64 you will need to manually change a couple or things in the snapcraft.yalm. They are indicated with an arrow and a "CHANGE IF NEEDED" comment.
+The snapcraft.yaml is cofigured to pack an app for arm64. If you want to pack the app for amd64 you will need to manually change a couple or things in the snapcraft.yaml. They are indicated with an arrow and a "CHANGE IF NEEDED" comment.
 
-```yalm
+```yaml
 architectures:
    - build-on: [amd64]
      build-for: [amd64]  ### <------ CHANGE IF NEEDED
 ```
-```yalm
+```yaml
 apps:
   ctrlx-nanotec:
     command: ./ctrlx_nanotec_amd4 ### <------ CHANGE IF NEEDED
@@ -105,8 +133,12 @@ Then you would need to build the code for amd64 with "buildCode_amd64.sh" and th
 
 After running the process to create the snap you will get a file called "ctrlx-nanotec_2.2.0_arm64.snap" if you followed the process for arm64 or "ctrlx-nanotec_2.2.0_amd64.snap" if you followed the process for amd64.
 
-This .snap file can be directly intalled in CtrlX Core from the Apps menu. Just as a reminder, since this new app you just built has not been signed, you need to allow the intallation from "unknown sources" in your device.
+This .snap file can be directly intalled in CtrlX Core from the Apps menu. Just as a reminder, since this new app you just built has not been signed, you need to allow the installation from "unknown sources" in your device.
 
+
+![Alt text](/images/unknownsources.png)
+
+![Alt text](/images/popup.png)
 
 ## Understanding the project
 
@@ -125,7 +157,7 @@ NOTE: Under library you must understand an already compiled code that defines so
 
 ### API in datalayer
 
-If the hardware is available the app should be successfully intialized and a new node called "ctrlx_nanotec" should appear in the data layer. 
+If the hardware is available the app should be successfully initialized and a new node called "ctrlx_nanotec" should appear in the data layer. 
 
 Inside this node one can find the following:
 
@@ -140,7 +172,7 @@ When distributing the project this files do not need to be shared.
 ## What is snapcraft?
 Snapcraft is a technology from Canonical that packs an app in a single file that contains all the dependencies needed for the app to run. Since CtrlX OS is based on ubuntu core, snapcraft has been chosen by Bosch Rexroth as the way to deploy apps. In particular ctrlx OS 2.xx is based on core22 (same as Ubuntu Desktop 22.04). For more information about snapacraft, please refer to the offical website of snapcraft https://snapcraft.io/.
 
-The packaging process is defined in the snapcraft.yalm file, placed in this project in the folder snap/. Let's understand what should you write in there. 
+The packaging process is defined in the snapcraft.yaml file, placed in this project in the folder snap/. Let's understand what should you write in there. 
 
 There are four main blocks in such file: 
 - metadata: information about the app name, version, etc.
@@ -152,7 +184,7 @@ Let's now break go understand each part:
 
 #### metadata
 
-```yalm
+```yaml
 name: ctrlx-nanotec
 version: "2.2.0"
 grade: stable
@@ -164,11 +196,11 @@ architectures:
    - build-on: [amd64]
      build-for: [arm64]  ### <------ CHANGE IF NEEDED
 ```
-In this section is important to remark that the confinement must be strict for apps that would be installed in the ctrlX Core. Also the section about architectures must be explicitly specified, it is importat to understand that this is only an instruction for the snapcraft process, you still need to pack binaries that are compiled for the architecture you want as target. Having this part in the snapcraft.yalm, but having wrong binaries, or having the right binaries, but not this section, will always result in a corrupted snpacraft process. 
+In this section is important to remark that the confinement must be strict for apps that would be installed in the ctrlX Core. Also the section about architectures must be explicitly specified, it is importat to understand that this is only an instruction for the snapcraft process, you still need to pack binaries that are compiled for the architecture you want as target. Having this part in the snapcraft.yaml, but having wrong binaries, or having the right binaries, but not this section, will always result in a corrupted snpacraft process. 
 
 #### parts
 
-```yalm
+```yaml
 parts:
   compiled:
     plugin: dump
@@ -199,14 +231,14 @@ It is important to understand that the libraries must be included in a directory
 
 Looking in the source for the libraries one can see that there are two folders: "aarch64-linux-gnu" and "x86_64-linux-gnu", corresponding repectvley to arm64 and amd64 architectures. This structure must be respected inside the lib/ directory of the snap.
 
-In short, the way it is defined in the snapcraft.yalm basically means merging the "aarch64-linux-gnu" from nanotec with the one from commDatalayer. Similary with "x86_64-linux-gnu".
+In short, the way it is defined in the snapcraft.yaml basically means merging the "aarch64-linux-gnu" from nanotec with the one from commDatalayer. Similary with "x86_64-linux-gnu".
 
 This way of organizing the libraries inside the snap is mandatory, otherwise the executables will not find the dependencies. 
 
 NOTE: To be strict, it would be only neccesary to include the libraries for the architecture we are building. However, with the aim of making this example easier, it has decided to always dump both of them.
 
 #### apps
-```yalm
+```yaml
 apps:
   ctrlx-nanotec:
     command: ./ctrlx_nanotec_arm64 ### <------ CHANGE IF NEEDED
@@ -234,7 +266,7 @@ The last part of the snipped is simply telling the app to start automatically if
 
 #### others
 
-```yalm
+```yaml
 # linters (dis/enable linter verbose, comment out if want to enable)
 lint:
   ignore:
