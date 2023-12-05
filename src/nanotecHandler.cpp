@@ -121,6 +121,13 @@ nanotecHandler::~nanotecHandler() {
 	exit(0);
 }
 
+void nanotecHandler::read_state(){
+	drive_curr_pos = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_POS_CURR_INDEX, DRIVE_ADDRESS_POS_CURR_SUBINDEX));
+	drive_curr_vel = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_VEL_CURR_INDEX, DRIVE_ADDRESS_VEL_CURR_SUBINDEX));
+	drive_targ_pos = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_POS_TARG_INDEX, DRIVE_ADDRESS_POS_TARG_SUBINDEX));
+	drive_targ_vel = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_VEL_TARG_INDEX, DRIVE_ADDRESS_VEL_TARG_SUBINDEX));
+}
+
 int nanotecHandler::stop_mode(){
 
 	// write the controlWord only once

@@ -21,7 +21,7 @@ This example is designed for Ubuntu Jammy Jellyfish 22.04 x86_64 Desktop. The "c
 Open a terminal, it will be started in your home directory. This is the best place to clone this repository. Simply enter:
 
 ```bash
-sudp apt install git # if you do not have git install in your system
+sudo apt install git # if you do not have git install in your system
 
 git clone https://github.com/rcruzoliver/ctrlx_nanotec_22
 ```

@@ -18,6 +18,7 @@
 
 #include "ctrlx_datalayer_helper.h"
 #include "dataLayerHandler.hpp"
+#include "nanotecHandler.hpp"
 
 // Add some signal Handling so we are able to abort the program with sending sigint
 static bool g_endProcess = false;
@@ -60,7 +61,7 @@ public:
   // Write function of a node. Function will be called whenever a node should be written.
   virtual void onWrite(const std::string& address, const comm::datalayer::Variant* data, const comm::datalayer::IProviderNode::ResponseCallback& callback) override
   {
-    std::cout << "INFO onWrite " <<  address << std::endl;
+    // std::cout << "INFO onWrite " <<  address << std::endl;
     
     if (data->getType() != m_data.getType())
     {
@@ -122,8 +123,24 @@ dataLayerHandler::dataLayerHandler(){
     
 };
 
+void dataLayerHandler::registerSingleNode(comm::datalayer::Variant node, const char* node_address){
+
+  comm::datalayer::DlResult result;
+
+  node.setValue((int32_t)0);
+  std::cout << "INFO Register node " << node_address  << std::endl;
+  result = provider->registerNode(node_address, new MyProviderNode(node));
+  if (STATUS_FAILED(result))
+  {
+    std::cout << "ERROR Register node " << node_address  << " failed with: " << result.toString() << std::endl;
+    exit(0);
+  }
+
+}
+
 void dataLayerHandler::registerNodes(){
 
+  // command
   mode_id.setValue((int8_t)0);
   std::cout << "INFO Register node " << mode_id_address  << std::endl;
   comm::datalayer::DlResult result_1 = provider->registerNode(mode_id_address, new MyProviderNode(mode_id));
@@ -141,6 +158,12 @@ void dataLayerHandler::registerNodes(){
     std::cout << "ERROR Register node " << command_vel_address  << " failed with: " << result_2.toString() << std::endl;
     exit(0);
   }
+ 
+  // state 
+  registerSingleNode(curr_pos, curr_pos_address);
+  registerSingleNode(curr_vel, curr_vel_address);
+  registerSingleNode(targ_pos, targ_pos_address);
+  registerSingleNode(targ_vel, targ_vel_address);
 
 }
 
@@ -188,3 +211,14 @@ bool dataLayerHandler::is_connected(){
 }
 
 
+void dataLayerHandler::writeSingleNode(int32_t data, comm::datalayer::Variant node, const char* node_address) {
+  node.setValue((int32_t)data);
+	client->writeSync(node_address,&node);
+}
+
+void dataLayerHandler::writeNodes(nanotecHandler& nanotecHandler){
+    writeSingleNode(nanotecHandler.drive_curr_pos,curr_pos,curr_pos_address);
+		writeSingleNode(nanotecHandler.drive_curr_vel,curr_vel,curr_vel_address);
+    writeSingleNode(nanotecHandler.drive_targ_pos,curr_pos,targ_pos_address);
+		writeSingleNode(nanotecHandler.drive_targ_vel,curr_vel,targ_vel_address);
+}

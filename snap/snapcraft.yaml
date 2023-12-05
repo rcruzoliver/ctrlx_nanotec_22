@@ -65,10 +65,10 @@ apps:
       - serial-port
       - raw-usb
       - hardware-observe
-    daemon: simple
-    passthrough:
-      restart-condition: always
-      restart-delay: 10s
+    # daemon: simple
+    # passthrough:
+      # restart-condition: always
+      # restart-delay: 10s
       
 
 

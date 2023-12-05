@@ -21,6 +21,18 @@ int main() {
 	// infinite loop, stay in it while the data Layer connection is successful
 	while (dataLayerHandler.is_connected()) {
 
+		/////////////////
+		// STATE
+
+		// Update state in nanotec handler object
+		nanotecHandler.read_state();
+
+		// Update state in data layer
+		dataLayerHandler.writeNodes(nanotecHandler);
+
+		////////////////
+		// COMMAND 
+
 		// Perform syncron readings from data layer
     	read_ok = dataLayerHandler.read_mode_id();
 
