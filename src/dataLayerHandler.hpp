@@ -32,8 +32,14 @@ public:
     comm::datalayer::Variant mode_id;
     const char* mode_id_address = "ctrlx_nanotec/cmd/mode_id";
 
-    comm::datalayer::Variant command_vel;
-    const char* command_vel_address = "ctrlx_nanotec/cmd/velocity_mode/vel_cmd";
+    comm::datalayer::Variant pos_cmd;
+    const char* pos_cmd_address = "ctrlx_nanotec/cmd/position_mode/pos_cmd";
+
+    // comm::datalayer::Variant vel_posM_cmd;
+    // const char* vel_posM_cmd_address = "ctrlx_nanotec/cmd/position_mode/vel_cmd";
+
+    comm::datalayer::Variant vel_cmd;
+    const char* vel_cmd_address = "ctrlx_nanotec/cmd/velocity_mode/vel_cmd";
 
     // state
     comm::datalayer::Variant curr_pos;
@@ -48,16 +54,30 @@ public:
     comm::datalayer::Variant targ_vel;
     const char* targ_vel_address = "ctrlx_nanotec/state/target_values/velocity";
 
+    comm::datalayer::Variant status_word;
+    const char* status_word_address = "ctrlx_nanotec/state/drive/status_word";
+
+    comm::datalayer::Variant control_word;
+    const char* control_word_address = "ctrlx_nanotec/state/drive/control_word";
+
+
     // Constructor
     dataLayerHandler(); 
 
     // Methods
+    template <typename T>
     void registerSingleNode(const comm::datalayer::Variant node, const char* node_address);
     void registerNodes();
+
     bool read_mode_id();
-    bool read_command_vel();
+    bool read_vel_cmd();
+
+    bool read_pos_cmd();
+
     bool is_connected();
 
-    void writeSingleNode(int32_t data, comm::datalayer::Variant node, const char* node_address);
+    template<typename T>
+    void writeSingleNode(T data, comm::datalayer::Variant node, const char* node_address);
     void writeNodes(nanotecHandler& nanotecHandler);
+
 };

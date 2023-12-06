@@ -123,11 +123,12 @@ dataLayerHandler::dataLayerHandler(){
     
 };
 
+template <typename T>
 void dataLayerHandler::registerSingleNode(comm::datalayer::Variant node, const char* node_address){
 
   comm::datalayer::DlResult result;
 
-  node.setValue((int32_t)0);
+  node.setValue((T)0);
   std::cout << "INFO Register node " << node_address  << std::endl;
   result = provider->registerNode(node_address, new MyProviderNode(node));
   if (STATUS_FAILED(result))
@@ -140,7 +141,7 @@ void dataLayerHandler::registerSingleNode(comm::datalayer::Variant node, const c
 
 void dataLayerHandler::registerNodes(){
 
-  // command
+  // API
   mode_id.setValue((int8_t)0);
   std::cout << "INFO Register node " << mode_id_address  << std::endl;
   comm::datalayer::DlResult result_1 = provider->registerNode(mode_id_address, new MyProviderNode(mode_id));
@@ -150,20 +151,18 @@ void dataLayerHandler::registerNodes(){
     exit(0);
   }
 
-  command_vel.setValue((int16_t)0);
-  std::cout << "INFO Register node " << command_vel_address  << std::endl;
-  comm::datalayer::DlResult result_2 = provider->registerNode(command_vel_address, new MyProviderNode(command_vel));
-  if (STATUS_FAILED(result_2))
-  {
-    std::cout << "ERROR Register node " << command_vel_address  << " failed with: " << result_2.toString() << std::endl;
-    exit(0);
-  }
- 
-  // state 
-  registerSingleNode(curr_pos, curr_pos_address);
-  registerSingleNode(curr_vel, curr_vel_address);
-  registerSingleNode(targ_pos, targ_pos_address);
-  registerSingleNode(targ_vel, targ_vel_address);
+  // COMMAND
+  registerSingleNode<int32_t>(pos_cmd, pos_cmd_address);
+  registerSingleNode<int16_t>(vel_cmd, vel_cmd_address);
+
+  // STATE 
+  registerSingleNode<int32_t>(curr_pos, curr_pos_address);
+  registerSingleNode<int32_t>(curr_vel, curr_vel_address);
+  registerSingleNode<int32_t>(targ_pos, targ_pos_address);
+  registerSingleNode<int32_t>(targ_vel, targ_vel_address);
+
+  registerSingleNode<int16_t>(status_word, status_word_address);
+  registerSingleNode<int16_t>(control_word, control_word_address);
 
 }
 
@@ -186,33 +185,53 @@ bool dataLayerHandler::read_mode_id(){
   
 }
 
-bool dataLayerHandler::read_command_vel(){
-  comm::datalayer::DlResult result = client->readSync(command_vel_address, &command_vel);
+bool dataLayerHandler::read_vel_cmd(){
+  comm::datalayer::DlResult result = client->readSync(vel_cmd_address, &vel_cmd);
   if (result != DL_OK){
-    std::cout <<"ERROR Reading " << command_vel_address << " failed with: " << result.toString() << std::endl;
+    std::cout <<"ERROR Reading " << vel_cmd_address << " failed with: " << result.toString() << std::endl;
     return false;
   } 
   else
   {
-    if (command_vel.getType() == comm::datalayer::VariantType::INT16)
+    if (vel_cmd.getType() == comm::datalayer::VariantType::INT16)
     {
-      // std::cout << "INFO Value of " << command_vel_address << ": " << double(command_vel) << std::endl;
+      // std::cout << "INFO Value of " << vel_cmd_address << ": " << double(vel_cmd) << std::endl;
       return true;
     }
-    else { std::cout << "ERROR Value of " << command_vel_address << " has unexpected type: " << command_vel.typeAsString() << std::endl;}
+    else { std::cout << "ERROR Value of " << vel_cmd_address << " has unexpected type: " << vel_cmd.typeAsString() << std::endl;}
+    return false;
+    }
+  
+}
+
+bool dataLayerHandler::read_pos_cmd(){
+  comm::datalayer::DlResult result = client->readSync(pos_cmd_address, &pos_cmd);
+  if (result != DL_OK){
+    std::cout <<"ERROR Reading " << pos_cmd_address << " failed with: " << result.toString() << std::endl;
+    return false;
+  } 
+  else
+  {
+    if (pos_cmd.getType() == comm::datalayer::VariantType::INT32)
+    {
+      // std::cout << "INFO Value of " << vel_cmd_address << ": " << double(vel_cmd) << std::endl;
+      return true;
+    }
+    else { std::cout << "ERROR Value of " << pos_cmd_address << " has unexpected type: " << pos_cmd.typeAsString() << std::endl;}
     return false;
     }
   
 }
 
 
+
 bool dataLayerHandler::is_connected(){
   return (provider->isConnected() & client->isConnected());
 }
 
-
-void dataLayerHandler::writeSingleNode(int32_t data, comm::datalayer::Variant node, const char* node_address) {
-  node.setValue((int32_t)data);
+template<typename T>
+void dataLayerHandler::writeSingleNode(T data, comm::datalayer::Variant node, const char* node_address) {
+  node.setValue((T)data);
 	client->writeSync(node_address,&node);
 }
 
@@ -221,4 +240,7 @@ void dataLayerHandler::writeNodes(nanotecHandler& nanotecHandler){
 		writeSingleNode(nanotecHandler.drive_curr_vel,curr_vel,curr_vel_address);
     writeSingleNode(nanotecHandler.drive_targ_pos,curr_pos,targ_pos_address);
 		writeSingleNode(nanotecHandler.drive_targ_vel,curr_vel,targ_vel_address);
+
+    writeSingleNode((int16_t)nanotecHandler.driverStatusWord,status_word,status_word_address);
+    writeSingleNode((int16_t)nanotecHandler.driverControlWord,control_word,control_word_address);
 }

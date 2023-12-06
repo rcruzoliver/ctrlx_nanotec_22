@@ -13,10 +13,14 @@ int main() {
 	// Ctreate the neccesary nodes in data layer
 	dataLayerHandler.registerNodes();
 
+	// Set units
+	nanotecHandler.set_units_state();
+
 	// handling variables for the main state machine
 	int state_machine = STOP_STATE;
 	int drive_status;
 	bool read_ok;
+	int32_t old_pos_cmd;
 	
 	// infinite loop, stay in it while the data Layer connection is successful
 	while (dataLayerHandler.is_connected()) {
@@ -26,6 +30,7 @@ int main() {
 
 		// Update state in nanotec handler object
 		nanotecHandler.read_state();
+		nanotecHandler.update_words();
 
 		// Update state in data layer
 		dataLayerHandler.writeNodes(nanotecHandler);
@@ -42,18 +47,72 @@ int main() {
 		switch (state_machine){
     	case STOP_STATE: // driver in stop operation
         	drive_status = nanotecHandler.stop_mode();
-			if ((int)dataLayerHandler.mode_id == MODE_ID_VEL){
+
+			if ((int)dataLayerHandler.mode_id == MODE_ID_POS){
+				state_machine = ENABLE_REL_POS_STATE;
+			}
+			else if ((int)dataLayerHandler.mode_id == MODE_ID_VEL){
 				state_machine = ENABLE_VEL_STATE;
 			}
+			
 			break;
+
+		case ENABLE_REL_POS_STATE:
+			std::cout << "INFO Starting relative positioning mode."<< std::endl; 
+			// Set up the driver mode
+			nanotecHandler.set_pos_mode();
+
+			// Swtich on the drive (only if it in stop mode)
+			if (drive_status == DRIVE_STATUS_STOP){
+				drive_status = nanotecHandler.switch_on_mode();
+			}
+			
+			// Enable the drive (only if it in switch on mode)
+			if (drive_status == DRIVE_STATUS_SWITCH_ON){
+				drive_status = nanotecHandler.enable_mode();
+			};
+
+			// If the drive is already enable, enter the relative loop
+			if (drive_status == DRIVE_STATUS_ENABLE){
+				// Setting up the position mode in relative and immediately triggered mode
+				nanotecHandler.set_rel_pos_mode();
+				
+				state_machine = REL_POS_LOOP_STATE;
+				// nanotecHandler.printStatus();
+				// nanotecHandler.printControl();
+				std::cout << "INFO Motor in relative positioning mode."<< std::endl; 
+			}
+
+			break;
+
+		case REL_POS_LOOP_STATE:
+			read_ok = dataLayerHandler.read_pos_cmd(); // Perform syncron readings from data layer
+			if (read_ok==0){break;}
+
+			if((int32_t)dataLayerHandler.pos_cmd != old_pos_cmd){
+				nanotecHandler.update_pos_cmd((int32_t)dataLayerHandler.pos_cmd);
+				nanotecHandler.set_immed_pos_mode();
+				nanotecHandler.start_momevement_pos_mode();
+				std::cout << "INFO New positioning command"<< std::endl; 
+			}
+
+			old_pos_cmd = (int32_t)dataLayerHandler.pos_cmd;
+			
+			// nanotecHandler.printStatus();
+
+			if ((int)dataLayerHandler.mode_id == MODE_ID_STOP){
+				state_machine = STOP_STATE;
+			}
+			break;
+
 
     	case ENABLE_VEL_STATE: // make driver enable in velocity operation mode 
 			std::cout << "INFO Starting velocity mode."<< std::endl; 
 			// Set up the driver mode
 			nanotecHandler.set_vel_mode();
-			read_ok = dataLayerHandler.read_command_vel(); // Perform syncron readings from data layer
+			read_ok = dataLayerHandler.read_vel_cmd(); // Perform syncron readings from data layer
 			if (read_ok==0){break;}
-			nanotecHandler.update_vel_command((int)dataLayerHandler.command_vel);
+			nanotecHandler.update_vel_cmd((int)dataLayerHandler.vel_cmd);
 
 			// Swtich on the drive (only if it in stop mode)
 			if (drive_status == DRIVE_STATUS_STOP){
@@ -73,9 +132,11 @@ int main() {
 			break;
 			
 		case VEL_LOOP_STATE: // loop state for velocity mode, waiting for a change in command velocity
-			read_ok = dataLayerHandler.read_command_vel(); // Perform syncron readings from data layer
+
+			read_ok = dataLayerHandler.read_vel_cmd(); // Perform syncron readings from data layer
 			if (read_ok==0){break;}
-			nanotecHandler.update_vel_command((int)dataLayerHandler.command_vel);
+
+			nanotecHandler.update_vel_cmd((int)dataLayerHandler.vel_cmd);
 
 			if ((int)dataLayerHandler.mode_id == MODE_ID_STOP){
 				state_machine = STOP_STATE;

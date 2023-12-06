@@ -121,6 +121,26 @@ nanotecHandler::~nanotecHandler() {
 	exit(0);
 }
 
+void nanotecHandler::set_units_state(){
+
+	// Set dimension factor for vel_mode
+	nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_VEL_MODE_UNITS_NUM, nlc::OdIndex(DRIVE_ADDRESS_VEL_MODE_UNITS_INDEX, DRIVE_ADDRESS_VEL_MODE_UNITS_SUBINDEX_NUM), DRIVE_ADDRESS_VEL_MODE_UNITS_BITLENGTH);
+	nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_VEL_MODE_UNITS_DEN, nlc::OdIndex(DRIVE_ADDRESS_VEL_MODE_UNITS_INDEX, DRIVE_ADDRESS_VEL_MODE_UNITS_SUBINDEX_DEN), DRIVE_ADDRESS_VEL_MODE_UNITS_BITLENGTH);
+
+	// Set acceleration and deceleration for vel_mode
+	nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_VEL_MODE_ACC, nlc::OdIndex(DRIVE_ADDRESS_VEL_MODE_ACC_INDEX, DRIVE_ADDRESS_VEL_MODE_ACC_SUBINDEX_NUM), DRIVE_ADDRESS_VEL_MODE_ACC_BITLENGTH);
+	nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_VEL_MODE_DEC, nlc::OdIndex(DRIVE_ADDRESS_VEL_MODE_DEC_INDEX, DRIVE_ADDRESS_VEL_MODE_DEC_SUBINDEX_NUM), DRIVE_ADDRESS_VEL_MODE_DEC_BITLENGTH);
+
+	// Set position units for state read
+	nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_POS_UNITS, nlc::OdIndex(DRIVE_ADDRESS_POS_UNITS_INDEX, DRIVE_ADDRESS_POS_UNITS_SUBINDEX), DRIVE_ADDRESS_POS_UNITS_BITLEGTH);
+	// Set velocity units for state read
+	nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_VEL_UNITS, nlc::OdIndex(DRIVE_ADDRESS_VEL_UNITS_INDEX, DRIVE_ADDRESS_VEL_UNITS_SUBINDEX), DRIVE_ADDRESS_VEL_UNITS_BITLEGTH);
+
+	// Set reference to zero
+	nanolibHelper.writeInteger(*connectedDeviceHandle, 0, nlc::OdIndex(DRIVE_ADDRESS_HOME_OFFSET_INDEX, DRIVE_ADDRESS_HOME_OFFSET_SUBINDEX), DRIVE_ADDRESS_HOME_OFFSET_BITLENGTH);
+
+}
+
 void nanotecHandler::read_state(){
 	drive_curr_pos = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_POS_CURR_INDEX, DRIVE_ADDRESS_POS_CURR_SUBINDEX));
 	drive_curr_vel = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_VEL_CURR_INDEX, DRIVE_ADDRESS_VEL_CURR_SUBINDEX));
@@ -212,15 +232,58 @@ int nanotecHandler::enable_mode(){
 	return driverStatusCode;
 }
 
+void nanotecHandler::set_pos_mode(){
+    nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_POS_MODE, nlc::OdIndex(DRIVE_ADDRESS_OPERATION_MODE_INDEX, DRIVE_ADDRESS_OPERATION_MODE_SUBINDEX), DRIVE_OPERATION_MODE_BITLENGTH);
+}
+
+
+void nanotecHandler::set_rel_pos_mode(){
+	int16_t driverControlWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX));
+	driverControlWord |= 0b0000000001000000; // bit 6
+	nanolibHelper.writeInteger(*connectedDeviceHandle, driverControlWord, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX), DRIVE_CONTROL_BITLENGTH);
+}
+
+void nanotecHandler::set_immed_pos_mode(){
+	int16_t driverControlWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX));
+	driverControlWord |= 0b0000000000100000; // bit 5
+	nanolibHelper.writeInteger(*connectedDeviceHandle, driverControlWord, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX), DRIVE_CONTROL_BITLENGTH);
+}
+
+void nanotecHandler::start_momevement_pos_mode(){
+	int16_t driverControlWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX));
+	driverControlWord &= 0b1111111111101111; // bit 4 x->0
+	nanolibHelper.writeInteger(*connectedDeviceHandle, driverControlWord, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX), DRIVE_CONTROL_BITLENGTH);
+	driverControlWord |= 0b0000000000010000; // bit 4 0->1
+	nanolibHelper.writeInteger(*connectedDeviceHandle, driverControlWord, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX), DRIVE_CONTROL_BITLENGTH);
+}
+
+
 void nanotecHandler::set_vel_mode(){
     nanolibHelper.writeInteger(*connectedDeviceHandle, DRIVE_VEL_MODE, nlc::OdIndex(DRIVE_ADDRESS_OPERATION_MODE_INDEX, DRIVE_ADDRESS_OPERATION_MODE_SUBINDEX), DRIVE_OPERATION_MODE_BITLENGTH);
 }
 
-void nanotecHandler::update_vel_command(uint16_t velCommand){
-    nanolibHelper.writeInteger(*connectedDeviceHandle, velCommand, nlc::OdIndex(DRIVE_ADDRESS_VEL_CMD_INDEX, DRIVE_ADDRESS_VEL_CMD_SUBINDEX), DRIVE_VEL_CMD_BITLENGTH);
+void nanotecHandler::update_pos_cmd(int32_t data){
+    nanolibHelper.writeInteger(*connectedDeviceHandle, data, nlc::OdIndex(DRIVE_ADDRESS_POS_CMD_INDEX, DRIVE_ADDRESS_POS_CMD_SUBINDEX), DRIVE_POS_CMD_BITLENGTH);
 }
 
+void nanotecHandler::update_vel_cmd(int16_t data){
+    nanolibHelper.writeInteger(*connectedDeviceHandle, data, nlc::OdIndex(DRIVE_ADDRESS_VEL_CMD_INDEX, DRIVE_ADDRESS_VEL_CMD_SUBINDEX), DRIVE_VEL_CMD_BITLENGTH);
+}
 
+void nanotecHandler::printStatus(){
+	driverStatusWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_STATUS_INDEX, DRIVE_ADDRESS_STATUS_SUBINDEX));
+	std::cout << driverStatusWord << std::endl;
+}
+
+void nanotecHandler::printControl(){
+	driverStatusWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX));
+	std::cout << driverStatusWord << std::endl;
+}
+
+void nanotecHandler::update_words(){
+	driverStatusWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_STATUS_INDEX, DRIVE_ADDRESS_STATUS_SUBINDEX));
+	driverControlWord = nanolibHelper.readInteger(*connectedDeviceHandle, nlc::OdIndex(DRIVE_ADDRESS_CONTROL_INDEX, DRIVE_ADDRESS_CONTROL_SUBINDEX));
+}
 
 // Reading from different interfaces examples
 

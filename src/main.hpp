@@ -14,9 +14,16 @@ API in dataLayer
 
 */
 
-const int STOP_STATE = 0;
-const int ENABLE_VEL_STATE = 1;
-const int VEL_LOOP_STATE = 2;
+// state machine states
+#define STOP_STATE 0
 
-const int MODE_ID_STOP = 0;
-const int MODE_ID_VEL = 1;
+#define ENABLE_REL_POS_STATE 1
+#define REL_POS_LOOP_STATE 2
+
+#define ENABLE_VEL_STATE 3
+#define VEL_LOOP_STATE 4
+
+// values read from the datalayer
+#define MODE_ID_STOP 0
+#define MODE_ID_POS 1
+#define MODE_ID_VEL 2
