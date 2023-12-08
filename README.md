@@ -12,6 +12,9 @@ Date: November 2023 \
 Place: Buttikon Schwyz, Switzerland \
 License: MIT
 
+## System overview
+
+
 ## Easy Start-up. 
 This is a C++ project, therefore the code first need to be compiled (i.e. generate the binaries) and then packed in the so-called snap file, which will then installed in ctrlX OS. 
 
@@ -156,19 +159,32 @@ Finally, inside inc/ you can find the header files that must be included in your
 
 NOTE: Under library you must understand an already compiled code that defines some functions, and a header file (in inc/) as the declaration of such functions.
 
+### Other folders
+When you run the build process, you will get build/ and install/ directories.
+When you run the snapcraft process, you will get parts/, stage/ and prime/ directories.
+When distributing the project this files do not need to be shared.
+
 ### API in datalayer
 
 If the hardware is available the app should be successfully initialized and a new node called "ctrlx_nanotec" should appear in the data layer. 
 
 Inside this node one can find the following:
 
-- mode_id: it controls the operation mode of the motor. "0" means stop mode, "1" mean velocity mode. It is initializided with "0".
-- velocity_mode/command_vel: it is the target value for velocity when in velocity mode. It can be live updated when in velocity mode.
+- cmd/ : this branch includes all the parameters that can be edited by the user
+- state/: this branch includes all the parameters that are read only.
 
-### Other folders
-When you run the build process, you will get build/ and install/ directories.
-When you run the snapcraft process, you will get parts/, stage/ and prime/ directories.
-When distributing the project this files do not need to be shared.
+Inside cmd/ one can find:
+- cmd/mode_id: it controls the operation mode of the motor. "0" means stop mode, "1" means relative positioning mode, "2" means velocity mode. It is initializided with "0". To go from relative positioning mode to velocity mode you must go first to stop mode (1->0->2). Similary from velocity to positioning mode.
+-cmd/position_mode/pos_cmd: when in relative positioning mode (mode_id = 1) angle in degrees that you want to turn the motor. There are to decimal positions in the value, i.e. 135.65º should be entered as 13565. 
+-cmd/velocity_mode/vel_cmd: when in velocity mode (mode_id = 2) rotation velocity in rpm you want the motor to spin. There are to decimal positions in the value, i.e. 15.35 rpm should be entered as 1535.
+
+Inside state/ one can find:
+- state/driver: it containts the status (address 0x6041) and control word (address 0x6040) from the CANopen protocol. They are represented in integers, to better understand them convert it to uint16_t binary.
+- state/current_values/position: it contains the current position of the motor in degrees. There are to decimal positions in the value, i.e. 13565 corresponds to 135.65º.
+- state/current_values/velocity: it contains the current position of the motor in rpm.There are to decimal positions in the value, i.e. 1535 corresponds to 15.35 rpm.
+- state/target_values/position: it contains the internal target position of the motor in degrees, the one the driver solver wants the motor to be to follow the defined the movement profile. There are to decimal positions in the value, i.e. 13565 corresponds to 135.65º.
+- state/target_values/velocity: it contains the current position of the motor in rpm, the one the driver solver wants the motor to be to follow the defined movement profile. There are to decimal positions in the value, i.e. 1535 corresponds to 15.35 rpm.
+
 
 ## What is snapcraft?
 Snapcraft is a technology from Canonical that packs an app in a single file that contains all the dependencies needed for the app to run. Since CtrlX OS is based on ubuntu core, snapcraft has been chosen by Bosch Rexroth as the way to deploy apps. In particular ctrlx OS 2.xx is based on core22 (same as Ubuntu Desktop 22.04). For more information about snapacraft, please refer to the offical website of snapcraft https://snapcraft.io/.
