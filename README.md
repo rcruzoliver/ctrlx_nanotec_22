@@ -1,7 +1,7 @@
 # ctrlx_nanotec
-Demo example of an app for ctrlX Core in combination with CANopen-USB adapter from Nanotec. It creates an API in the datalayer from which the user can switch between stop mode and velocity mode with a desired target velocity. 
+Demo example of an app for ctrlX Core X3 in combination with CANopen-USB adapter from Nanotec. It creates an API in the datalayer from which the user can switch between stop mode, relative position mode and  velocity mode, indicating the desired movement parameters.
 
-This project was born as a demo example for an autonomous mobile robot developped at OST Rapperswill Hochschule. 
+This project was born as a demo example for an autonomous mobile robot developped at OST Rapperswil Hochschule. 
 
 ## Development details
 Office: Bosch Rexroth Schweiz \
@@ -13,7 +13,11 @@ Place: Buttikon Schwyz, Switzerland \
 License: MIT
 
 ## System overview
+The conexion topologie can be seen in the following picture. The serial port of the ctrlX X3 is connected to the Nanotec adapter with a USB-C->USB-B cable. The motor+driver is then connected to the adapter using the wiring convention for CANopen. Although it is not represented in the picture, the motor+driver is powered at 24V.
 
+![Alt text](/images/overview.png)
+
+Documenttion about the adapter and the CANopen protocol (CiA 402) can be found in the folder "documentation/" in this git respository.
 
 ## Easy Start-up. 
 This is a C++ project, therefore the code first need to be compiled (i.e. generate the binaries) and then packed in the so-called snap file, which will then installed in ctrlX OS. 
@@ -175,8 +179,8 @@ Inside this node one can find the following:
 
 Inside cmd/ one can find:
 - cmd/mode_id: it controls the operation mode of the motor. "0" means stop mode, "1" means relative positioning mode, "2" means velocity mode. It is initializided with "0". To go from relative positioning mode to velocity mode you must go first to stop mode (1->0->2). Similary from velocity to positioning mode.
--cmd/position_mode/pos_cmd: when in relative positioning mode (mode_id = 1) angle in degrees that you want to turn the motor. There are to decimal positions in the value, i.e. 135.65º should be entered as 13565. 
--cmd/velocity_mode/vel_cmd: when in velocity mode (mode_id = 2) rotation velocity in rpm you want the motor to spin. There are to decimal positions in the value, i.e. 15.35 rpm should be entered as 1535.
+- cmd/position_mode/pos_cmd: when in relative positioning mode (mode_id = 1) angle in degrees that you want to turn the motor. There are to decimal positions in the value, i.e. 135.65º should be entered as 13565. 
+- cmd/velocity_mode/vel_cmd: when in velocity mode (mode_id = 2) rotation velocity in rpm you want the motor to spin. There are to decimal positions in the value, i.e. 15.35 rpm should be entered as 1535.
 
 Inside state/ one can find:
 - state/driver: it containts the status (address 0x6041) and control word (address 0x6040) from the CANopen protocol. They are represented in integers, to better understand them convert it to uint16_t binary.
