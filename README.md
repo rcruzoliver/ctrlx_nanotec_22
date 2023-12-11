@@ -1,8 +1,6 @@
 # ctrlx_nanotec
 Demo example of an app for ctrlX Core X3 in combination with CANopen-USB adapter from Nanotec. It creates an API in the datalayer from which the user can switch between stop mode, relative position mode and  velocity mode, indicating the desired movement parameters.
 
-This project was born as a demo example for an autonomous mobile robot developped at OST Rapperswil Hochschule. 
-
 ## Development details
 Office: Bosch Rexroth Schweiz \
 Author: Raul Cruz-Oliver \
