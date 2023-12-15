@@ -1,4 +1,6 @@
-# ctrlx_nanotec
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+# ctrlx-nanotec
 Demo example of an app for ctrlX Core X3 in combination with CANopen-USB adapter from Nanotec. It creates an API in the datalayer from which the user can switch between stop mode, relative position mode and  velocity mode, indicating the desired movement parameters.
 
 ## Development details
