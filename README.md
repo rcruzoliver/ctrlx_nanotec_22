@@ -137,6 +137,7 @@ apps:
 ```
 Then you would need to build the code for amd64 with "buildCode_amd64.sh" and then pack the snap with "createSnap.sh".
 
+### 4. Install the snap in ctrlX CORE
 After running the process to create the snap you will get a file called "ctrlx-nanotec_2.2.0_arm64.snap" if you followed the process for arm64 or "ctrlx-nanotec_2.2.0_amd64.snap" if you followed the process for amd64.
 
 This .snap file can be directly intalled in CtrlX Core from the Apps menu. Just as a reminder, since this new app you just built has not been signed, you need to allow the installation from "unknown sources" in your device.
