@@ -3,13 +3,12 @@
 # ctrlx-nanotec
 Demo example of an app for ctrlX Core X3 in combination with CANopen-USB adapter from Nanotec. It creates an API in the datalayer from which the user can switch between stop mode, relative position mode and  velocity mode, indicating the desired movement parameters.
 
-## Development details
-Office: Bosch Rexroth Schweiz \
+## Author details
+<mark>**DISCLAIMER: This is not an official Bosch Rexroth development. This is only a demo example, use at your own risk. There is no support.**</mark> 
+
 Author: Raul Cruz-Oliver \
 Main contact email: raul.cruz.oliver@gmail.com \
-Alternative contact email: stefan.luna@boschrexroth.ch \
 Date: November 2023 \
-Place: Buttikon Schwyz, Switzerland \
 License: MIT
 
 ## System overview
@@ -17,7 +16,7 @@ The conexion topologie can be seen in the following picture. The serial port of 
 
 ![Alt text](/images/overview.png)
 
-Documenttion about the adapter and the CANopen protocol (CiA 402) can be found in the folder "documentation/" in this git respository.
+Documention about the adapter and the CANopen protocol (CiA 402) can be found in the folder "documentation/". PD2C_CANopen_Techschisches-Handbuch_v3.3.0 is the documentation related with the motor and ZK-USB-CAN-1_Betriebsanleitung_V1.0.0..pdf is the correspoding with the adapter. 
 
 ## Easy Start-up. 
 This is a C++ project, therefore the code first need to be compiled (i.e. generate the binaries) and then packed in the so-called snap file, which will then installed in ctrlX OS. 
